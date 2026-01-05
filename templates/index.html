@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NSE Volume Scanner</title>
+<style>
+body { background:#111; color:#fff; font-family:Arial; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th, td { border:1px solid #333; padding:6px; text-align:center; }
+th { background:#222; }
+</style>
+</head>
+<body>
+
+<h3>NSE Volume Scanner</h3>
+
+<table>
+<tr>
+<th>Symbol</th>
+<th>Sector</th>
+<th>Prev</th>
+<th>LTP</th>
+<th>Vol (Cr)</th>
+<th>Turnover</th>
+<th>%</th>
+</tr>
+
+{% for r in data %}
+<tr>
+<td>{{ r.symbol }}</td>
+<td>{{ r.sector }}</td>
+<td>{{ r.prev }}</td>
+<td>{{ r.ltp }}</td>
+<td>{{ r.volume }}</td>
+<td>{{ r.turnover }}</td>
+<td>{{ r.pct }}</td>
+</tr>
+{% endfor %}
+
+</table>
+</body>
+</html>
