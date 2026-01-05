@@ -1,13 +1,18 @@
-import requests
+# scanner.py
+
 import time
-from datetime import datetime
+import requests
+from datetime import datetime, time as dtime
 import pytz
 
 from symbol_loader import load_symbols
 from telegram_alert import send_alert
 from config import (
-    MARKET_OPEN, MARKET_CLOSE,
-    VOLUME_ALERT_1, VOLUME_ALERT_2, TURNOVER_ALERT
+    TURNOVER_4CR,
+    TURNOVER_6CR,
+    REQUEST_TIMEOUT,
+    MAX_RETRIES,
+    BACKOFF_SECONDS,
 )
 
 IST = pytz.timezone("Asia/Kolkata")
@@ -15,34 +20,24 @@ IST = pytz.timezone("Asia/Kolkata")
 HEADERS = {
     "User-Agent": "Mozilla/5.0",
     "Accept": "application/json",
-    "Referer": "https://www.nseindia.com"
 }
-
-session = requests.Session()
-session.headers.update(HEADERS)
-
-alert_4 = set()
-alert_6 = set()
 
 def market_open():
     now = datetime.now(IST).time()
-    start = datetime.strptime(MARKET_OPEN, "%H:%M").time()
-    end = datetime.strptime(MARKET_CLOSE, "%H:%M").time()
-    return start <= now <= end
+    return dtime(9, 15) <= now <= dtime(15, 30)
 
-def get_quote(symbol, retries=3):
+def fetch_quote(symbol):
     url = f"https://www.nseindia.com/api/quote-equity?symbol={symbol}"
-    delay = 1
+    session = requests.Session()
+    session.get("https://www.nseindia.com", headers=HEADERS, timeout=5)
 
-    for _ in range(retries):
+    for i in range(MAX_RETRIES):
         try:
-            r = session.get(url, timeout=5)
-            r.raise_for_status()
-            return r.json()
+            r = session.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT)
+            if r.status_code == 200:
+                return r.json()
         except Exception:
-            time.sleep(delay)
-            delay *= 2
-
+            time.sleep(BACKOFF_SECONDS * (i + 1))
     return None
 
 def scan():
@@ -50,43 +45,49 @@ def scan():
         return []
 
     results = []
+    symbols = load_symbols()
 
-    for item in load_symbols():
-        sym = item["symbol"]
-        sector = item["sector"]
+    for item in symbols:
+        symbol = item["Symbol"]
+        sector = item["Sector"]
 
-        q = get_quote(sym)
-        if not q:
+        data = fetch_quote(symbol)
+        if not data:
             continue
 
         try:
-            ltp = float(q["priceInfo"]["lastPrice"])
-            prev = float(q["priceInfo"]["previousClose"])
-            vol = float(q["securityWiseDP"]["tradedVolume"])
+            price = data["priceInfo"]
+            trade = data["securityWiseDP"]
 
-            vol_cr = vol / 1e7
-            turnover = (vol * ltp) / 1e7
-            pct = ((ltp - prev) / prev) * 100
+            prev = price["previousClose"]
+            ltp = price["lastPrice"]
+            volume = trade["tradedVolume"]
+            turnover = trade["tradedValue"]
 
-            results.append({
-                "symbol": sym,
+            vol_cr = round(volume / 1e7, 2)
+            pct = round(((ltp - prev) / prev) * 100, 2)
+
+            row = {
+                "symbol": symbol,
                 "sector": sector,
-                "prev": round(prev, 2),
-                "ltp": round(ltp, 2),
-                "volume": round(vol_cr, 2),
-                "turnover": round(turnover, 2),
-                "pct": round(pct, 2)
-            })
+                "prev": prev,
+                "ltp": ltp,
+                "vol_cr": vol_cr,
+                "turnover": turnover,
+                "pct": pct,
+            }
 
-            if turnover >= TURNOVER_ALERT:
-                if vol_cr >= VOLUME_ALERT_2 and sym not in alert_6:
-                    send_alert(f"🔥 6Cr BLAST {sym} | {sector}")
-                    alert_6.add(sym)
-                elif vol_cr >= VOLUME_ALERT_1 and sym not in alert_4:
-                    send_alert(f"🚨 4Cr IMBALANCE {sym} | {sector}")
-                    alert_4.add(sym)
+            if turnover >= TURNOVER_6CR:
+                send_alert("🚨 6 CR TURNOVER ALERT", row)
+            elif turnover >= TURNOVER_4CR:
+                send_alert("⚠️ 4 CR TURNOVER ALERT", row)
+
+            if turnover >= TURNOVER_4CR:
+                results.append(row)
 
         except Exception:
             continue
+
+        time.sleep(0.2)
 
     return results
