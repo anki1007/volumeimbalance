@@ -1,12 +1,20 @@
+# config.py
+
+# GitHub RAW CSV (PRIMARY source)
 GITHUB_SYMBOLS_RAW_URL = (
     "https://raw.githubusercontent.com/anki1007/volumeimbalance/main/data/symbols.csv"
 )
 
-SYMBOL_LIMIT = 120
+# Telegram
+TELEGRAM_BOT_TOKEN = "8302178990:AAEy6p_wBRWsM5mIcbHFcSRvmVykf0s7bso"
+TELEGRAM_CHAT_ID = "8302178990"
 
-MARKET_OPEN = "09:15"
-MARKET_CLOSE = "15:30"
+# Thresholds (₹)
+TURNOVER_4CR = 4_00_00_000
+TURNOVER_6CR = 6_00_00_000
 
-VOLUME_ALERT_1 = 4
-VOLUME_ALERT_2 = 6
-TURNOVER_ALERT = 100
+# Scanner settings
+MAX_SYMBOLS = 120          # keep safe for PythonAnywhere
+REQUEST_TIMEOUT = 5
+MAX_RETRIES = 3
+BACKOFF_SECONDS = 2
