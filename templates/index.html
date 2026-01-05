@@ -1,42 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NSE Volume Scanner</title>
-<style>
-body { background:#111; color:#fff; font-family:Arial; }
-table { width:100%; border-collapse:collapse; font-size:13px; }
-th, td { border:1px solid #333; padding:6px; text-align:center; }
-th { background:#222; }
-</style>
+    <title>NSE Volume Scanner</title>
+    <style>
+        body { background:#111; color:#fff; font-family:Arial; }
+        table { width:100%; border-collapse:collapse; margin-top:20px; }
+        th, td { padding:8px; border:1px solid #333; text-align:center; }
+        th { background:#222; }
+    </style>
 </head>
 <body>
 
-<h3>NSE Volume Scanner</h3>
+<h2>NSE Volume Scanner</h2>
 
 <table>
-<tr>
-<th>Symbol</th>
-<th>Sector</th>
-<th>Prev</th>
-<th>LTP</th>
-<th>Vol (Cr)</th>
-<th>Turnover</th>
-<th>%</th>
-</tr>
+    <tr>
+        <th>Symbol</th>
+        <th>Sector</th>
+        <th>Prev</th>
+        <th>LTP</th>
+        <th>Vol (Cr)</th>
+        <th>Turnover</th>
+        <th>%</th>
+    </tr>
 
-{% for r in data %}
-<tr>
-<td>{{ r.symbol }}</td>
-<td>{{ r.sector }}</td>
-<td>{{ r.prev }}</td>
-<td>{{ r.ltp }}</td>
-<td>{{ r.volume }}</td>
-<td>{{ r.turnover }}</td>
-<td>{{ r.pct }}</td>
-</tr>
-{% endfor %}
-
+    {% for row in data %}
+    <tr>
+        <td>{{ row.symbol }}</td>
+        <td>{{ row.sector }}</td>
+        <td>{{ row.prev }}</td>
+        <td>{{ row.ltp }}</td>
+        <td>{{ row.vol_cr }}</td>
+        <td>{{ row.turnover }}</td>
+        <td>{{ row.pct }}</td>
+    </tr>
+    {% endfor %}
 </table>
+
 </body>
 </html>
