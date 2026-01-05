@@ -1,27 +1,14 @@
-import csv
-import requests
-from io import StringIO
-from config import GITHUB_SYMBOLS_RAW_URL, SYMBOL_LIMIT
+# symbol_loader.py
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0",
-    "Accept": "text/plain"
-}
+import pandas as pd
+import requests
+from config import GITHUB_SYMBOLS_RAW_URL, MAX_SYMBOLS
 
 def load_symbols():
-    r = requests.get(GITHUB_SYMBOLS_RAW_URL, headers=HEADERS, timeout=10)
-    r.raise_for_status()
-
-    csv_file = StringIO(r.text)
-    reader = csv.DictReader(csv_file)
-
-    symbols = []
-    for row in reader:
-        symbols.append({
-            "symbol": row["Symbol"].strip(),
-            "sector": row.get("Industry", "NA").strip()
-        })
-        if len(symbols) >= SYMBOL_LIMIT:
-            break
-
-    return symbols
+    """
+    Load symbols + sector from GitHub CSV
+    """
+    df = pd.read_csv(GITHUB_SYMBOLS_RAW_URL)
+    df = df.dropna(subset=["Symbol", "Industry"])
+    df = df.rename(columns={"Industry": "Sector"})
+    return df[["Symbol", "Sector"]].head(MAX_SYMBOLS).to_dict("records")
