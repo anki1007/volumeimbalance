@@ -19,20 +19,15 @@ CORS(app)
 driver = None
 
 def init_driver():
-    """Initializes Headless Chrome with advanced stability flags for Render"""
     global driver
     if driver is None:
         print("Initializing Chrome...")
         chrome_options = Options()
-        
-        # Stability flags for server environments
         chrome_options.add_argument("--headless=new") 
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--window-size=1920,1080")
         
-        # Path to the Chrome binary downloaded by render-build.sh
         if os.environ.get("RENDER"):
             chrome_options.binary_location = "/opt/render/project/.render/chrome/opt/google/chrome/chrome"
 
