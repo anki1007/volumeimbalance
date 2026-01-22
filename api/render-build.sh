@@ -19,10 +19,10 @@ else
   echo "...Using Chrome from cache"
 fi
 
-# Clean old drivers and install dependencies
+# Clean old environment and install dependencies
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# Force install the driver that matches Chrome 144
-echo "...Updating Selenium Driver"
+# Force update the driver
+echo "...Updating Selenium Driver to match Chrome 144"
 python -c "from webdriver_manager.chrome import ChromeDriverManager; ChromeDriverManager().install()"
