@@ -4,6 +4,7 @@ import random
 from io import StringIO
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+# Note: User's system has low memory; pandas and selenium are heavy
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
