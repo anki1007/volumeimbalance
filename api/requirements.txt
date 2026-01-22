@@ -1,7 +1,6 @@
-flask
-flask-cors
-selenium
-webdriver-manager
-gunicorn
+Flask
+Flask-CORS
+selenium==4.40.0
+webdriver-manager==4.0.2
 pandas
 lxml
