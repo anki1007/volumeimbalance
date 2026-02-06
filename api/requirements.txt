@@ -1,7 +1,0 @@
-Flask
-Flask-CORS
-gunicorn
-selenium==4.40.0
-webdriver-manager==4.0.2
-pandas
-lxml
